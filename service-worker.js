@@ -15,7 +15,7 @@ self.addEventListener('install', event => {
       .then(() => self.skipWaiting())
   );
 });
-
+//force redeploy
 // Activate event
 self.addEventListener('activate', event => {
   event.waitUntil(
