@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vybe - Connect with your vibe</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>V</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --dark: #0a0618;
+            --light: #ffffff;
+            --gray: rgba(255, 255, 255, 0.6);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Container */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 6, 24, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            padding: 15px 20px;
+        }
+
+        .header-content {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 6, 24, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border);
+            z-index: 100;
+        }
+
+        .nav-content {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            cursor: pointer;
+            color: var(--gray);
+            transition: color 0.3s;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .nav-label {
+            font-size: 12px;
+        }
+
+        /* Pages */
+        .page {
+            display: none;
+            min-height: 100vh;
+            padding: 80px 0;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Forms */
+        .form-container {
+            max-width: 400px;
+            margin: 40px auto;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .form-title {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            margin-top: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Posts */
+        .post-form {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .post {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .post-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            margin-right: 12px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            flex-shrink: 0;
+        }
+
+        .post-author-info {
+            flex: 1;
+        }
+
+        .post-author {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .verified-badge {
+            color: var(--primary);
+            font-size: 16px;
+        }
+
+        .post-time {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .post-content {
+            margin-bottom: 15px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        .post-image {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+
+        .action-btn.liked {
+            color: #ef4444;
+        }
+
+        /* Profile */
+        .profile-header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(180deg, rgba(102, 126, 234, 0.1) 0%, transparent 100%);
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+
+        .profile-name {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .profile-username {
+            color: var(--gray);
+            margin-bottom: 20px;
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 20px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .profile-bio {
+            max-width: 400px;
+            margin: 0 auto;
+            line-height: 1.5;
+            color: var(--gray);
+        }
+
+        /* Messages */
+        .chat-list {
+            padding: 20px 0;
+        }
+
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .chat-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .chat-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            margin-right: 12px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+
+        .chat-info {
+            flex: 1;
+        }
+
+        .chat-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .chat-preview {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .chat-time {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        /* Discover */
+        .trending-section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .trending-tags {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .tag {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 10px 20px;
+            border-radius: 20px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tag:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+
+        .user-card-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            margin-right: 12px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+
+        .user-card-info {
+            flex: 1;
+        }
+
+        .user-card-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .user-card-followers {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .follow-btn {
+            padding: 8px 20px;
+            background: var(--primary);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .follow-btn:hover {
+            background: var(--secondary);
+        }
+
+        .follow-btn.following {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Stories */
+        .stories-container {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .story-item {
+            flex-shrink: 0;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .story-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 3px;
+            margin-bottom: 8px;
+        }
+
+        .story-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--dark);
+        }
+
+        .story-username {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        /* Settings */
+        .settings-section {
+            margin-bottom: 30px;
+        }
+
+        .settings-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .settings-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .settings-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .settings-icon {
+            font-size: 20px;
+        }
+
+        .toggle-switch {
+            width: 48px;
+            height: 28px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(20px);
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1a1a2e;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 25px;
+            border-radius: 12px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        .toast.success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.5);
+        }
+
+        .toast.error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header" id="header">
+        <div class="header-content">
+            <h1 class="logo">Vybe</h1>
+            <div id="headerActions"></div>
+        </div>
+    </div>
+
+    <!-- Login Page -->
+    <div class="page active" id="loginPage">
+        <div class="form-container">
+            <div class="form-logo">V</div>
+            <h2 class="form-title">Welcome Back</h2>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label">Username or Email</label>
+                    <input type="text" class="form-input" id="loginUsername" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn">Log In</button>
+                <button type="button" class="btn btn-secondary" onclick="showPage('registerPage')">
+                    Create New Account
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register Page -->
+    <div class="page" id="registerPage">
+        <div class="form-container">
+            <div class="form-logo">V</div>
+            <h2 class="form-title">Join Vybe</h2>
+            <form onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" id="registerFullName" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-input" id="registerUsername" pattern="[a-zA-Z0-9_]+" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="registerPassword" minlength="6" required>
+                </div>
+                <button type="submit" class="btn">Sign Up</button>
+                <button type="button" class="btn btn-secondary" onclick="showPage('loginPage')">
+                    Already have an account? Log In
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Feed Page -->
+    <div class="page" id="feedPage">
+        <div class="container">
+            <!-- Stories -->
+            <div class="stories-container" id="storiesContainer">
+                <div class="story-item">
+                    <div class="story-avatar">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=you" alt="Your Story">
+                    </div>
+                    <div class="story-username">Your Story</div>
+                </div>
+            </div>
+
+            <!-- Create Post -->
+            <div class="post-form">
+                <form onsubmit="handleCreatePost(event)">
+                    <textarea class="form-textarea" id="postContent" placeholder="What's on your mind?" required></textarea>
+                    <button type="submit" class="btn" style="margin-top: 15px;">Post</button>
+                </form>
+            </div>
+
+            <!-- Posts -->
+            <div id="postsContainer">
+                <div style="text-align: center; padding: 40px;">
+                    <div class="spinner" style="margin: 0 auto;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Discover Page -->
+    <div class="page" id="discoverPage">
+        <div class="container">
+            <!-- Trending Hashtags -->
+            <div class="trending-section">
+                <h2 class="section-title">
+                    <span>🔥</span>
+                    Trending Now
+                </h2>
+                <div class="trending-tags">
+                    <div class="tag">#VybeVibes</div>
+                    <div class="tag">#NewUser</div>
+                    <div class="tag">#Trending</div>
+                    <div class="tag">#PhotoOfTheDay</div>
+                    <div class="tag">#FollowMe</div>
+                </div>
+            </div>
+
+            <!-- Suggested Users -->
+            <div class="trending-section">
+                <h2 class="section-title">
+                    <span>👥</span>
+                    Suggested for You
+                </h2>
+                <div id="suggestedUsers">
+                    <div class="user-card">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=sarah" class="user-card-avatar">
+                        <div class="user-card-info">
+                            <div class="user-card-name">Sarah Wilson</div>
+                            <div class="user-card-followers">5.2K followers</div>
+                        </div>
+                        <button class="follow-btn">Follow</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages Page -->
+    <div class="page" id="messagesPage">
+        <div class="container">
+            <div class="chat-list" id="chatList">
+                <div class="chat-item">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=emma" class="chat-avatar">
+                    <div class="chat-info">
+                        <div class="chat-name">Emma Johnson</div>
+                        <div class="chat-preview">Hey! How are you doing?</div>
+                    </div>
+                    <div class="chat-time">2m ago</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Page -->
+    <div class="page" id="profilePage">
+        <div class="container">
+            <div class="profile-header">
+                <img id="profileAvatar" src="" class="profile-avatar">
+                <h2 id="profileName" class="profile-name"></h2>
+                <p id="profileUsername" class="profile-username"></p>
+                <div class="profile-stats">
+                    <div class="stat">
+                        <span class="stat-value" id="postsCount">0</span>
+                        <span class="stat-label">Posts</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="followersCount">0</span>
+                        <span class="stat-label">Followers</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="followingCount">0</span>
+                        <span class="stat-label">Following</span>
+                    </div>
+                </div>
+                <p id="profileBio" class="profile-bio"></p>
+                <button class="btn" onclick="showPage('settingsPage')" style="margin-top: 20px; max-width: 200px;">
+                    Edit Profile
+                </button>
+            </div>
+
+            <div id="userPosts" style="margin-top: 30px;">
+                <h3 style="margin-bottom: 20px;">Your Posts</h3>
+                <div id="userPostsContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Page -->
+    <div class="page" id="settingsPage">
+        <div class="container">
+            <div class="settings-section">
+                <h2 class="section-title">Account Settings</h2>
+                
+                <div class="settings-item" onclick="showEditProfile()">
+                    <div class="settings-label">
+                        <span class="settings-icon">👤</span>
+                        <span>Edit Profile</span>
+                    </div>
+                    <span>›</span>
+                </div>
+
+                <div class="settings-item" onclick="togglePrivacy()">
+                    <div class="settings-label">
+                        <span class="settings-icon">🔒</span>
+                        <span>Private Account</span>
+                    </div>
+                    <div class="toggle-switch" id="privacyToggle"></div>
+                </div>
+
+                <div class="settings-item" onclick="toggleNotifications()">
+                    <div class="settings-label">
+                        <span class="settings-icon">🔔</span>
+                        <span>Notifications</span>
+                    </div>
+                    <div class="toggle-switch active" id="notificationsToggle"></div>
+                </div>
+
+                <div class="settings-item" onclick="logout()" style="color: #ef4444;">
+                    <div class="settings-label">
+                        <span class="settings-icon">🚪</span>
+                        <span>Log Out</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="nav" style="display: none;">
+        <div class="nav-content">
+            <div class="nav-item active" onclick="navigateTo('feedPage')">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Feed</span>
+            </div>
+            <div class="nav-item" onclick="navigateTo('discoverPage')">
+                <span class="nav-icon">🔍</span>
+                <span class="nav-label">Discover</span>
+            </div>
+            <div class="nav-item" onclick="navigateTo('messagesPage')">
+                <span class="nav-icon">💬</span>
+                <span class="nav-label">Messages</span>
+            </div>
+            <div class="nav-item" onclick="navigateTo('profilePage')">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">Profile</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal" id="editProfileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Profile</h3>
+                <button class="close-btn" onclick="closeModal('editProfileModal')">×</button>
+            </div>
+            <form onsubmit="handleUpdateProfile(event)">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" id="editFullName">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Bio</label>
+                    <textarea class="form-textarea" id="editBio" placeholder="Tell us about yourself"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Website</label>
+                    <input type="url" class="form-input" id="editWebsite" placeholder="https://yourwebsite.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <input type="text" class="form-input" id="editLocation" placeholder="City, Country">
+                </div>
+                <button type="submit" class="btn">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Configuration
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000' 
+            : 'https://your-backend-url.onrender.com'; // Change this to your deployed backend URL
+
+        // Global State
+        let currentUser = null;
+        let token = null;
+        let currentPage = 'loginPage';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+        });
+
+        // Check Authentication
+        function checkAuth() {
+            token = localStorage.getItem('vybeToken');
+            const userStr = localStorage.getItem('vybeUser');
+            
+            if (token && userStr) {
+                currentUser = JSON.parse(userStr);
+                showPage('feedPage');
+                document.getElementById('nav').style.display = 'block';
+                updateProfileInfo();
+                loadFeed();
+            } else {
+                showPage('loginPage');
+                document.getElementById('nav').style.display = 'none';
+            }
+        }
+
+        // Show Page
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+            currentPage = pageId;
+
+            // Update navigation
+            if (pageId !== 'loginPage' && pageId !== 'registerPage') {
+                updateNavigation(pageId);
+            }
+
+            // Load page-specific content
+            switch(pageId) {
+                case 'feedPage':
+                    loadFeed();
+                    break;
+                case 'profilePage':
+                    loadProfile();
+                    break;
+                case 'discoverPage':
+                    loadDiscover();
+                    break;
+            }
+        }
+
+        // Navigate To (for nav items)
+        function navigateTo(pageId) {
+            showPage(pageId);
+        }
+
+        // Update Navigation
+        function updateNavigation(pageId) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            const pageMap = {
+                'feedPage': 0,
+                'discoverPage': 1,
+                'messagesPage': 2,
+                'profilePage': 3
+            };
+            
+            const index = pageMap[pageId];
+            if (index !== undefined) {
+                document.querySelectorAll('.nav-item')[index].classList.add('active');
+            }
+        }
+
+        // Show Toast
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast show ${type}`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // API Request Helper
+        async function apiRequest(endpoint, options = {}) {
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token && { 'Authorization': `Bearer ${token}` })
+                }
+            };
+
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`, {
+                    ...defaultOptions,
+                    ...options,
+                    headers: {
+                        ...defaultOptions.headers,
+                        ...options.headers
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Request failed');
+                }
+
+                return data;
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+
+        // Login
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const data = await apiRequest('/api/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ username, password })
+                });
+
+                // Save auth data
+                localStorage.setItem('vybeToken', data.token);
+                localStorage.setItem('vybeUser', JSON.stringify(data.user));
+                
+                token = data.token;
+                currentUser = data.user;
+
+                showToast('Welcome back!');
+                showPage('feedPage');
+                document.getElementById('nav').style.display = 'block';
+                updateProfileInfo();
+                
+                // Clear form
+                event.target.reset();
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        // Register
+        async function handleRegister(event) {
+            event.preventDefault();
+            
+            const fullName = document.getElementById('registerFullName').value;
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            try {
+                const data = await apiRequest('/api/auth/register', {
+                    method: 'POST',
+                    body: JSON.stringify({ fullName, username, email, password })
+                });
+
+                // Save auth data
+                localStorage.setItem('vybeToken', data.token);
+                localStorage.setItem('vybeUser', JSON.stringify(data.user));
+                
+                token = data.token;
+                currentUser = data.user;
+
+                showToast('Account created successfully!');
+                showPage('feedPage');
+                document.getElementById('nav').style.display = 'block';
+                updateProfileInfo();
+                
+                // Clear form
+                event.target.reset();
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        // Create Post
+        async function handleCreatePost(event) {
+            event.preventDefault();
+            
+            const content = document.getElementById('postContent').value;
+
+            try {
+                await apiRequest('/api/posts', {
+                    method: 'POST',
+                    body: JSON.stringify({ content })
+                });
+
+                showToast('Post created!');
+                document.getElementById('postContent').value = '';
+                loadFeed();
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        // Load Feed
+        async function loadFeed() {
+            const container = document.getElementById('postsContainer');
+            container.innerHTML = '<div style="text-align: center; padding: 40px;"><div class="spinner" style="margin: 0 auto;"></div></div>';
+
+            try {
+                const posts = await apiRequest('/api/posts');
+                
+                if (posts.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--gray);">
+                            <p>No posts yet. Be the first to share something!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = posts.map(post => `
+                    <div class="post">
+                        <div class="post-header">
+                            <img src="${post.author.avatar}" class="post-avatar">
+                            <div class="post-author-info">
+                                <div class="post-author">
+                                    ${post.author.fullName}
+                                    ${post.author.verified ? '<span class="verified-badge">✓</span>' : ''}
+                                </div>
+                                <div class="post-time">@${post.author.username} · ${formatTime(post.createdAt)}</div>
+                            </div>
+                        </div>
+                        <div class="post-content">${escapeHtml(post.content)}</div>
+                        <div class="post-actions">
+                            <button class="action-btn ${post.likes.includes(currentUser?.id) ? 'liked' : ''}" 
+                                    onclick="likePost('${post._id}')">
+                                <span>${post.likes.includes(currentUser?.id) ? '❤️' : '🤍'}</span>
+                                <span>${post.likes.length}</span>
+                            </button>
+                            <button class="action-btn" onclick="showToast('Comments coming soon!')">
+                                <span>💬</span>
+                                <span>${post.comments?.length || 0}</span>
+                            </button>
+                            <button class="action-btn" onclick="showToast('Share feature coming soon!')">
+                                <span>🔄</span>
+                                <span>Share</span>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #ef4444;">
+                        <p>Failed to load posts. Please try again.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Like Post
+        async function likePost(postId) {
+            try {
+                await apiRequest(`/api/posts/${postId}/like`, {
+                    method: 'POST'
+                });
+                loadFeed();
+            } catch (error) {
+                showToast('Failed to like post', 'error');
+            }
+        }
+
+        // Load Profile
+        async function loadProfile() {
+            if (!currentUser) return;
+
+            try {
+                const response = await apiRequest(`/api/users/${currentUser.username}`);
+                const { user, posts, stats } = response;
+
+                // Update profile info
+                document.getElementById('profileAvatar').src = user.avatar;
+                document.getElementById('profileName').textContent = user.fullName;
+                document.getElementById('profileUsername').textContent = `@${user.username}`;
+                document.getElementById('profileBio').textContent = user.bio || 'No bio yet';
+                document.getElementById('postsCount').textContent = stats.posts;
+                document.getElementById('followersCount').textContent = stats.followers;
+                document.getElementById('followingCount').textContent = stats.following;
+
+                // Load user posts
+                const postsContainer = document.getElementById('userPostsContainer');
+                if (posts.length === 0) {
+                    postsContainer.innerHTML = '<p style="text-align: center; color: var(--gray);">No posts yet</p>';
+                } else {
+                    postsContainer.innerHTML = posts.map(post => `
+                        <div class="post">
+                            <div class="post-content">${escapeHtml(post.content)}</div>
+                            <div class="post-actions">
+                                <span class="action-btn">
+                                    <span>❤️</span>
+                                    <span>${post.likes.length}</span>
+                                </span>
+                                <span class="action-btn">
+                                    <span>💬</span>
+                                    <span>${post.comments?.length || 0}</span>
+                                </span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                showToast('Failed to load profile', 'error');
+            }
+        }
+
+        // Load Discover
+        function loadDiscover() {
+            // This would load real data in production
+            showToast('Discover feature coming soon!');
+        }
+
+        // Update Profile Info
+        function updateProfileInfo() {
+            if (currentUser) {
+                document.getElementById('profileAvatar').src = currentUser.avatar;
+                document.getElementById('profileName').textContent = currentUser.fullName;
+                document.getElementById('profileUsername').textContent = `@${currentUser.username}`;
+            }
+        }
+
+        // Show Edit Profile Modal
+        function showEditProfile() {
+            document.getElementById('editFullName').value = currentUser.fullName;
+            document.getElementById('editBio').value = currentUser.bio || '';
+            document.getElementById('editWebsite').value = currentUser.website || '';
+            document.getElementById('editLocation').value = currentUser.location || '';
+            document.getElementById('editProfileModal').classList.add('active');
+        }
+
+        // Handle Update Profile
+        async function handleUpdateProfile(event) {
+            event.preventDefault();
+
+            const updates = {
+                fullName: document.getElementById('editFullName').value,
+                bio: document.getElementById('editBio').value,
+                website: document.getElementById('editWebsite').value,
+                location: document.getElementById('editLocation').value
+            };
+
+            try {
+                const data = await apiRequest('/api/users/profile', {
+                    method: 'PUT',
+                    body: JSON.stringify(updates)
+                });
+
+                // Update local user data
+                currentUser = { ...currentUser, ...updates };
+                localStorage.setItem('vybeUser', JSON.stringify(currentUser));
+
+                showToast('Profile updated successfully!');
+                closeModal('editProfileModal');
+                loadProfile();
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        // Toggle Functions
+        function togglePrivacy() {
+            const toggle = document.getElementById('privacyToggle');
+            toggle.classList.toggle('active');
+            showToast('Privacy settings updated');
+        }
+
+        function toggleNotifications() {
+            const toggle = document.getElementById('notificationsToggle');
+            toggle.classList.toggle('active');
+            showToast('Notification settings updated');
+        }
+
+        // Close Modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Are you sure you want to log out?')) {
+                localStorage.removeItem('vybeToken');
+                localStorage.removeItem('vybeUser');
+                token = null;
+                currentUser = null;
+                showPage('loginPage');
+                document.getElementById('nav').style.display = 'none';
+                showToast('Logged out successfully');
+            }
+        }
+
+        // Utility Functions
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return 'just now';
+            if (diff < 3600000) return `${Math.floor(diff / 60000)}m`;
+            if (diff < 86400000) return `${Math.floor(diff / 3600000)}h`;
+            if (diff < 604800000) return `${Math.floor(diff / 86400000)}d`;
+            
+            return date.toLocaleDateString();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Socket.io for real-time features (optional)
+        // Uncomment these lines if you want real-time updates
+        /*
+        if (typeof io !== 'undefined') {
+            const socket = io(API_URL);
+            
+            socket.on('connect', () => {
+                console.log('Connected to server');
+                if (currentUser) {
+                    socket.emit('user_online', currentUser.id);
+                }
+            });
+            
+            socket.on('new_post', (post) => {
+                loadFeed();
+            });
+            
+            socket.on('new_message', (message) => {
+                showToast('New message received!');
+            });
+        }
+        */
+    </script>
+</body>
+</html>
